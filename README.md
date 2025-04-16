@@ -2,7 +2,7 @@
 
 ![Logitech BCC950 Camera](https://github.com/user-attachments/assets/71319eb9-181c-4821-8d78-f85fe8dfcd5d)
 
-Control the Logitech BCC950 ConferenceCam's pan, tilt, and zoom functions via shell commands in Linux.
+Control the Logitech BCC950 ConferenceCam's pan, tilt, and zoom functions via shell commands or Python in Linux.
 
 ## About the Logitech BCC950
 
@@ -19,25 +19,68 @@ The Logitech BCC950 ConferenceCam is a versatile videoconferencing device that c
 - **USB Plug-and-Play**: Simple connection to Linux, Windows, and macOS systems
 - **Programmable Controls**: API access to pan, tilt, and zoom functions
 
-## Using This Script
+## System Architecture
 
-This repository provides a simple yet powerful shell script for controlling your BCC950 camera using v4l2 commands in Linux.
+```mermaid
+flowchart TD
+    A[Logitech BCC950 Camera] --- USB
+    USB --- PC[Computer]
+    B[v4l2-utils] --> C["Device Driver"]
+    C --- A
+    D[Shell Script] --> |commands| B
+    E[Python Script] --> |commands| B
+    F[Manual Control] --> D
+    F --> E
+    G[Demo Sequence] --> D
+    G --> E
+    H[Embodied AI] --> E
+    I[Video Conferencing] --> A
+```
 
-### Installation
+## Camera Movement Controls
+
+```mermaid
+flowchart LR
+    PL[--pan-left] --> |pan_speed=-1| PS[Pan Speed]
+    PR[--pan-right] --> |pan_speed=1| PS
+    TU[--tilt-up] --> |tilt_speed=1| TS[Tilt Speed]
+    TD[--tilt-down] --> |tilt_speed=-1| TS
+    ZI[--zoom-in] --> |zoom_absolute=+step| ZA[Zoom Absolute]
+    ZO[--zoom-out] --> |zoom_absolute=-step| ZA
+    PS --> V[v4l2 Driver]
+    TS --> V
+    ZA --> V
+    V --> CAM[BCC950 Camera]
+```
+
+## Installation & Setup
+
+### Prerequisites
+
+- Linux operating system
+- v4l2-utils package (automatically installed by setup)
+- Python 3.6+ (for Python script)
+
+### Getting Started
 
 ```bash
 # Clone this repository
 git clone https://github.com/yourusername/logitech-bcc950-control.git
 cd logitech-bcc950-control
 
-# Make the script executable
+# Make the scripts executable
 chmod +x bcc950-control.sh
+chmod +x bcc950_control.py
 
-# Run the setup to install dependencies and detect your camera
+# Run setup (either script works)
 ./bcc950-control.sh --setup
+# OR
+./bcc950_control.py --setup
 ```
 
-### Basic Usage
+## Using the Shell Script
+
+The shell script provides a simple command-line interface to control the camera:
 
 ```bash
 # Pan the camera left
@@ -53,7 +96,42 @@ chmod +x bcc950-control.sh
 ./bcc950-control.sh --demo
 ```
 
-### Command Options
+## Using the Python Script
+
+The Python script offers the same functionality with an object-oriented approach:
+
+```bash
+# Pan the camera left
+./bcc950_control.py --pan-left
+
+# Tilt the camera up
+./bcc950_control.py --tilt-up
+
+# Zoom in
+./bcc950_control.py --zoom-in
+
+# Run a demo sequence
+./bcc950_control.py --demo
+```
+
+The Python script can also be imported into other Python applications:
+
+```python
+from bcc950_control import BCC950Controller
+
+# Create controller instance
+camera = BCC950Controller()
+
+# Control camera
+camera.pan_left()
+camera.tilt_up()
+camera.zoom_in()
+camera.run_demo()
+```
+
+## Command Options
+
+Both scripts support the following options:
 
 - `--setup`: Install prerequisites and detect camera
 - `--device DEVICE`: Specify camera device (default: auto-detected)
@@ -69,6 +147,30 @@ chmod +x bcc950-control.sh
 - `--info`: Show camera information and controls
 - `--help`: Show help message
 
+## Demo Sequence Flow
+
+```mermaid
+sequenceDiagram
+    participant Script
+    participant Camera
+    
+    Script->>Camera: Reset zoom to minimum
+    Script->>Camera: Pan left
+    loop Zoom In
+        Script->>Camera: Increase zoom
+    end
+    Script->>Camera: Stop panning
+    Script->>Camera: Tilt up
+    Script->>Camera: Stop tilting
+    Script->>Camera: Pan right
+    loop Zoom Out
+        Script->>Camera: Decrease zoom
+    end
+    Script->>Camera: Stop panning
+    Script->>Camera: Tilt down
+    Script->>Camera: Reset position
+```
+
 ## Creating Embodied AI with the BCC950
 
 The Logitech BCC950 is an excellent platform for creating embodied AI experiences. By combining its mechanical movement with AI capabilities, you can create an interactive presence that feels much more engaging than traditional voice assistants.
@@ -81,7 +183,23 @@ The Logitech BCC950 is an excellent platform for creating embodied AI experience
 
 3. **Strong Presence**: The camera's eye-level positioning and motorized movement create a sense of presence that static webcams can't match.
 
-4. **Programmable Control**: This script provides a foundation for integrating the camera's movement with AI systems.
+4. **Programmable Control**: These scripts provide a foundation for integrating the camera's movement with AI systems.
+
+### AI Integration Architecture
+
+```mermaid
+flowchart TD
+    A[Speech Recognition] --> C[AI Core Logic]
+    B[Computer Vision] --> C
+    C --> D[Speech Synthesis]
+    C --> E[Movement Control]
+    E --> F[BCC950Controller]
+    F --> G[v4l2 Interface]
+    G --> H[BCC950 Camera]
+    I[Human] --> A
+    D --> I
+    H --> I
+```
 
 ### Integration Ideas:
 
